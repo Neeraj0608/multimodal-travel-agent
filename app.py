@@ -11,6 +11,7 @@ interesting (routing, tool calling, parallelism, memory) lives in
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 import uuid
 from pathlib import Path
@@ -25,6 +26,51 @@ bootstrap()
 
 import streamlit as st  # noqa: E402
 from langchain_core.messages import HumanMessage  # noqa: E402
+
+
+def _adopt_streamlit_secrets() -> None:
+    """Copy st.secrets into the environment before settings are resolved.
+
+    Locally the configuration comes from .env. When deployed there is no .env,
+    and the keys arrive through Streamlit's secrets manager instead. Reading
+    them into os.environ keeps config.py as the single place that resolves
+    settings, rather than teaching it about two different sources.
+    """
+    keys = (
+        "LLM_PROVIDER",
+        "LLM_MODEL",
+        "GROQ_API_KEY",
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "TAVILY_API_KEY",
+        "USE_LIVE_APIS",
+        "MOCK_LATENCY",
+        "EMBEDDING_BACKEND",
+        "SIMILARITY_FLOOR",
+    )
+    # Touching st.secrets with no secrets.toml on disk makes Streamlit render an
+    # error box, so check for the file rather than catching the failure.
+    locations = (
+        Path.home() / ".streamlit" / "secrets.toml",
+        ROOT / ".streamlit" / "secrets.toml",
+    )
+    if not any(path.exists() for path in locations):
+        return
+
+    try:
+        secrets = st.secrets
+    except Exception:
+        return
+    for key in keys:
+        try:
+            value = secrets[key]
+        except Exception:
+            continue
+        if value not in (None, ""):
+            os.environ.setdefault(key, str(value))
+
+
+_adopt_streamlit_secrets()
 
 from travel_agent.config import API_KEY_VARS, get_settings  # noqa: E402
 from travel_agent.graph.builder import get_graph  # noqa: E402
@@ -96,8 +142,9 @@ def sidebar(settings: Any, store_info: dict[str, Any]) -> dict[str, Any]:
             expected = ", ".join(f"`{v}`" for v in API_KEY_VARS.values())
             st.warning(
                 "No API key found, running the **deterministic offline model**. "
-                f"The graph, routing, tools and memory all work; only the prose is "
-                f"canned. Set one of {expected} in `.env` for real generations.",
+                "The graph, routing, tools and memory all work; only the prose is "
+                f"canned. Set one of {expected} in `.env` locally, or in the app "
+                "secrets when deployed.",
                 icon=":material/key_off:",
             )
         else:

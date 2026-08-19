@@ -13,9 +13,33 @@ failure.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 _DONE = False
+
+
+def _use_modern_sqlite() -> None:
+    """Point Python at pysqlite3 when the system sqlite3 is too old for Chroma.
+
+    Chroma needs sqlite 3.35+. Several hosted Linux images still ship an older
+    build, where importing chromadb dies with an unsupported-version error.
+    Where the wheel is installed, swapping the module before chromadb is first
+    imported avoids that; everywhere else this is a no-op.
+    """
+    try:
+        import sqlite3
+
+        if sqlite3.sqlite_version_info >= (3, 35, 0):
+            return
+    except Exception:  # pragma: no cover
+        return
+
+    try:
+        __import__("pysqlite3")
+        sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
+    except ImportError:  # pragma: no cover - nothing better available
+        pass
 
 
 def init(env_file: str | os.PathLike[str] | None = None) -> None:
@@ -30,6 +54,8 @@ def init(env_file: str | os.PathLike[str] | None = None) -> None:
         truststore.inject_into_ssl()
     except Exception:  # pragma: no cover - best effort, app still runs
         pass
+
+    _use_modern_sqlite()
 
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")

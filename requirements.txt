@@ -10,9 +10,13 @@ httpx>=0.27
 python-dotenv>=1.0
 pillow>=10.0
 
-# TLS: makes Python trust the OS certificate store. Required on machines behind
+# TLS: makes Python trust the OS certificate store. Needed on machines behind
 # an AV/corporate proxy that re-signs HTTPS, where certifi alone fails.
 truststore>=0.9
+
+# Chroma needs sqlite 3.35+. Some hosted Linux images ship an older build, so
+# bootstrap.py swaps in this wheel when the system one is too old.
+pysqlite3-binary>=0.5; sys_platform == "linux"
 
 # Model providers - install whichever you use (LLM_PROVIDER selects at runtime)
 groq>=0.11
