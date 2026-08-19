@@ -4,7 +4,12 @@ Ask about a city and get back a written summary, a 7-day forecast chart and a ph
 gallery. A LangGraph agent decides where the knowledge should come from, fetches weather
 and images concurrently, and returns a single validated object that Streamlit renders.
 
-![Graph topology](graph.png)
+![Demo](assets/demo.gif)
+
+The badge under each answer says where it came from. Tokyo is answered from the local
+vector store; the follow-up "What about next week?" keeps the city and the summary but
+re-runs only the weather tool, so it is marked as coming from memory; Kyoto is not in the
+corpus, so it routes to search.
 
 ## Running it
 
@@ -35,9 +40,12 @@ what keeps the tests offline.
 python scripts/smoke.py      # four scenarios end to end, with assertions
 python -m pytest tests -q    # test suite
 python scripts/export_graph.py   # regenerate graph.png
+python scripts/record_demo.py    # re-record assets/demo.gif (app must be running)
 ```
 
 ## How it works
+
+![Graph topology](graph.png)
 
 ### State
 
@@ -174,6 +182,7 @@ app.py                      Streamlit entry point, view logic only
 graph.png                   Graph topology
 scripts/smoke.py            Four end-to-end scenarios
 scripts/export_graph.py     Regenerates graph.png
+scripts/record_demo.py      Regenerates the demo GIF
 src/travel_agent/
   bootstrap.py              TLS and offline-model setup
   config.py                 Settings and provider resolution

@@ -27,3 +27,4 @@ anthropic>=0.34
 # tavily-python>=0.5          # live web search  (USE_LIVE_APIS=true)
 # sentence-transformers>=3.0  # EMBEDDING_BACKEND=minilm
 # pytest>=8.0                 # test suite
+# selenium>=4.20              # scripts/record_demo.py
