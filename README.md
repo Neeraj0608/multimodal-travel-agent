@@ -1,6 +1,6 @@
 # Multi-Modal Travel Assistant
 
-Ask about a city and get back a written summary, a 7-day forecast chart and a photo
+Designed a travel assistant Ask about a city and get back a written summary, a 7-day forecast chart and a photo
 gallery. A LangGraph agent decides where the knowledge should come from, fetches weather
 and images concurrently, and returns a single validated object that Streamlit renders.
 
