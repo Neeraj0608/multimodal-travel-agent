@@ -1,0 +1,25 @@
+# Core -----------------------------------------------------------------------
+langgraph>=1.0,<2.0
+langgraph-checkpoint>=2.0
+langchain-core>=1.0,<2.0
+streamlit>=1.36
+pydantic>=2.9
+plotly>=5.22
+chromadb>=0.5
+httpx>=0.27
+python-dotenv>=1.0
+pillow>=10.0
+
+# TLS: makes Python trust the OS certificate store. Required on machines behind
+# an AV/corporate proxy that re-signs HTTPS, where certifi alone fails.
+truststore>=0.9
+
+# Model providers - install whichever you use (LLM_PROVIDER selects at runtime)
+groq>=0.11
+openai>=1.40
+anthropic>=0.34
+
+# Optional -------------------------------------------------------------------
+# tavily-python>=0.5          # live web search  (USE_LIVE_APIS=true)
+# sentence-transformers>=3.0  # EMBEDDING_BACKEND=minilm
+# pytest>=8.0                 # test suite
